@@ -18,18 +18,40 @@ export function Contact() {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success("Consultation Booked Successfully!", {
-        description: "I'll get back to you within 24 hours.",
+
+    try {
+      const response = await fetch('https://formspree.io/f/xnjyaezr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          business_type: formData.businessType,
+          project_budget: formData.budget,
+          project_description: formData.description,
+        }),
       });
-      setFormData({ name: '', email: '', businessType: '', budget: '', description: '' });
-    }, 1500);
+
+      if (response.ok) {
+        toast.success('Consultation Booked Successfully!', {
+          description: "I'll get back to you within 24 hours.",
+        });
+        setFormData({ name: '', email: '', businessType: '', budget: '', description: '' });
+      } else {
+        toast.error('Something went wrong.', {
+          description: 'Please try emailing me directly at praneshs2006@gmail.com',
+        });
+      }
+    } catch {
+      toast.error('Network error.', {
+        description: 'Please try emailing me directly at praneshs2006@gmail.com',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
